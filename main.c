@@ -266,41 +266,41 @@ void matrix_setelem(Matrix *m, int x, int y, float elem)
   addNode(&m, x, y, elem);
 }
 
-int main() {
-    Matrix* matrixA = NULL;
-    Matrix* matrixB = NULL;
+int main()
+{
+  Matrix *matrixA = NULL;
+  Matrix *matrixB = NULL;
 
-    printf("Informe a matriz A:\n");
-    matrixA = matrix_create();
-    
-    printf("Matriz A:\n");
-    matrix_print(matrixA);
+  printf("Informe a matriz A:\n");
+  matrixA = matrix_create();
 
-    printf("Informe a matriz B:\n");
-    matrixB = matrix_create();
+  printf("Matriz A:\n");
+  matrix_print(matrixA);
 
-    printf("Matriz B:\n");
-    matrix_print(matrixB);
+  printf("Informe a matriz B:\n");
+  matrixB = matrix_create();
 
-    Matrix* sumMatrix = matrix_add(matrixA, matrixB);
-    printf("Soma das matrizes A e B:\n");
-    matrix_print(sumMatrix);
+  printf("Matriz B:\n");
+  matrix_print(matrixB);
 
-    Matrix* productMatrix = matrix_multiply(matrixA, matrixB);
-    printf("Produto das matrizes A e B:\n");
-    matrix_print(productMatrix);
+  Matrix *sumMatrix = matrix_add(matrixA, matrixB);
+  printf("Soma das matrizes A e B:\n");
+  matrix_print(sumMatrix);
 
-    Matrix* transposeMatrixA = matrix_transpose(matrixA);
-    printf("Transposta da matriz A:\n");
-    matrix_print(transposeMatrixA);
+  Matrix *productMatrix = matrix_multiply(matrixA, matrixB);
+  printf("Produto das matrizes A e B:\n");
+  matrix_print(productMatrix);
 
-    // Liberação da memória alocada para as matrizes
-    matrix_destroy(matrixA);
-    matrix_destroy(matrixB);
-    matrix_destroy(sumMatrix);
-    matrix_destroy(productMatrix);
-    matrix_destroy(transposeMatrixA);
+  Matrix *transposeMatrixA = matrix_transpose(matrixA);
+  printf("Transposta da matriz A:\n");
+  matrix_print(transposeMatrixA);
 
-    return 0;
+  // Liberação da memória alocada para as matrizes
+  matrix_destroy(matrixA);
+  matrix_destroy(matrixB);
+  matrix_destroy(sumMatrix);
+  matrix_destroy(productMatrix);
+  matrix_destroy(transposeMatrixA);
+
+  return 0;
 }
-
