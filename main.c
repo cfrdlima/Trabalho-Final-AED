@@ -60,7 +60,8 @@ Matrix *matrix_create()
   int numRows, numCols;
   printf("Digite o tamanho da Matrix: ");
   scanf("%d %d", &numRows, &numCols);
-  printf("Tamanho: Linhas: [%d]\nColunas: [%d]", numRows, numCols);
+  printf("\nTamanho: Linhas: [%d]\nColunas: [%d]\n\n", numRows, numCols);
+  printf("Agora preencha o conteudo da Matrix: ");
 
   Matrix *sparseMatrix = NULL;
 
@@ -104,10 +105,9 @@ void matrix_print(Matrix *m)
     Matrix *currentColumn = currentRow;
     while (currentColumn != NULL)
     {
-      printf("%.1f ", currentColumn->info);
+      printf("%d %d %.1f\n", currentColumn->line, currentColumn->column, currentColumn->info);
       currentColumn = currentColumn->right;
     }
-    printf("\n");
     currentRow = currentRow->below;
   }
 }
@@ -180,30 +180,7 @@ Matrix *matrix_multiply(Matrix *m, Matrix *n)
       if (currentM->column == currentN->line)
       {
         float product = currentM->info * currentN->info;
-        int row = currentM->line;
-        int col = currentN->column;
-
-        // Procurar na matriz de resultado para adicionar o valor multiplicado
-        Matrix *currentResultRow = result;
-        while (currentResultRow != NULL && currentResultRow->line < row)
-        {
-          currentResultRow = currentResultRow->below;
-        }
-
-        Matrix *currentResultCol = currentResultRow;
-        while (currentResultCol != NULL && currentResultCol->column < col)
-        {
-          currentResultCol = currentResultCol->right;
-        }
-
-        if (currentResultCol != NULL && currentResultCol->line == row && currentResultCol->column == col)
-        {
-          currentResultCol->info += product;
-        }
-        else
-        {
-          addNode(&result, row, col, product);
-        }
+        addNode(&result, currentM->line, currentN->column, product);
       }
       currentN = currentN->below;
     }
@@ -234,36 +211,47 @@ Matrix *matrix_transpose(Matrix *m)
 
 float matrix_getelem(Matrix *m, int x, int y)
 {
-  Matrix *current = m;
+  if (m == NULL)
+  {
+    return 0.0; // Retorna 0 se a matriz for nula
+  }
 
+  Matrix *current = m;
   while (current != NULL)
   {
     if (current->line == x && current->column == y)
     {
-      return current->info;
+      return current->info; // Retorna o valor do elemento encontrado
     }
     current = current->right;
   }
 
-  return 0.0;
+  return 0.0; // Retorna 0 se o elemento não for encontrado
 }
 
 void matrix_setelem(Matrix *m, int x, int y, float elem)
 {
-  Matrix *current = m;
+  if (m == NULL)
+  {
+    return; // Retorna se a matriz for nula
+  }
 
+  Matrix *current = m;
   while (current != NULL)
   {
     if (current->line == x && current->column == y)
     {
-      current->info = elem;
+      current->info = elem; // Atualiza o valor do elemento encontrado
       return;
     }
     current = current->right;
   }
 
-  // Se o elemento não for encontrado, adicione um novo nó com o valor fornecido
-  addNode(&m, x, y, elem);
+  // Se o elemento não foi encontrado, adicione-o com o valor elem
+  if (elem != 0.0)
+  {
+    addNode(&m, x, y, elem);
+  }
 }
 
 int main()

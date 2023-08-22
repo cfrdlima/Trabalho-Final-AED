@@ -1,3 +1,6 @@
+#ifndef MATRIX_H
+#define MATRIX_H
+
 struct matrix
 {
   struct matrix *right;
@@ -29,3 +32,5 @@ Matrix *matrix_transpose(Matrix *m);
 float matrix_getelem(Matrix *m, int x, int y);
 // setElem Matrix
 void matrix_setelem(Matrix *m, int x, int y, float elem);
+
+#endif
