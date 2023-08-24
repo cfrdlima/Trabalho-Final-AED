@@ -12,8 +12,6 @@ struct matrix
   float info;
 };
 
-typedef struct matrix Matrix;
-
 Matrix *criaNo(int linha, int col, float valor)
 {
   Matrix *novoNo = (Matrix *)malloc(sizeof(Matrix));

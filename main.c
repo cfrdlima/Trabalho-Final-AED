@@ -3,8 +3,8 @@
 #include <time.h>
 #include "matrix.h"
 
-// chama o arquivo: gcc main.c maxtrix.c -o programa
-//./programa
+// compila arquivo: gcc main.c matrix.o -o main
+// executa programa: ./main
 
 int main()
 {
@@ -12,6 +12,7 @@ int main()
   Matrix *matrixB = NULL;
 
   printf("Informe a matriz A:\n");
+  printf("teste feito");
   matrixA = matrix_create();
 
   printf("Matriz A:\n");
