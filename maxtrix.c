@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-// #include "matrix.h"
+#include "matrix.h"
 
 struct matrix
 {
@@ -14,242 +14,252 @@ struct matrix
 
 typedef struct matrix Matrix;
 
-Matrix *createNode(int row, int col, float value)
+Matrix *criaNo(int linha, int col, float valor)
 {
-  Matrix *newNode = (Matrix *)malloc(sizeof(Matrix));
-  newNode->right = NULL;
-  newNode->below = NULL;
-  newNode->line = row;
-  newNode->column = col;
-  newNode->info = value;
-  return newNode;
+  Matrix *novoNo = (Matrix *)malloc(sizeof(Matrix));
+  novoNo->right = NULL;
+  novoNo->below = NULL;
+  novoNo->line = linha;
+  novoNo->column = col;
+  novoNo->info = valor;
+  return novoNo;
 }
 
-void addNode(Matrix **head, int row, int col, float value)
+void adicionaNo(Matrix **head, int linha, int col, float valor)
 {
-  Matrix *newNode = createNode(row, col, value);
+  Matrix *novoNo = criaNo(linha, col, valor);
 
   if (*head == NULL)
   {
-    *head = newNode;
+    *head = novoNo;
   }
   else
   {
-    Matrix *currentRow = *head;
-    while (currentRow->below != NULL && currentRow->below->line <= row)
+    Matrix *linhaAtual = *head;
+    while (linhaAtual->below != NULL && linhaAtual->below->line <= linha)
     {
-      currentRow = currentRow->below;
+      linhaAtual = linhaAtual->below;
     }
 
-    Matrix *currentColumn = currentRow;
-    while (currentColumn->right != NULL && currentColumn->right->column <= col)
+    Matrix *colunaAtual = linhaAtual;
+    while (colunaAtual->right != NULL && colunaAtual->right->column <= col)
     {
-      currentColumn = currentColumn->right;
+      colunaAtual = colunaAtual->right;
     }
 
-    newNode->below = currentColumn->below;
-    currentColumn->below = newNode;
+    novoNo->below = colunaAtual->below;
+    colunaAtual->below = novoNo;
 
-    newNode->right = currentRow->right;
-    currentRow->right = newNode;
+    novoNo->right = linhaAtual->right;
+    linhaAtual->right = novoNo;
   }
 }
 
 Matrix *matrix_create()
 {
-  int numRows, numCols;
+  int numLinhas, numCols;
   printf("Digite o tamanho da Matrix: ");
-  scanf("%d %d", &numRows, &numCols);
-  printf("\nTamanho: Linhas: [%d]\nColunas: [%d]\n\n", numRows, numCols);
-  printf("Agora preencha o conteudo da Matrix: ");
+  scanf("%d %d", &numLinhas, &numCols);
+  printf("Numero de Linhas: [%d]\nNumero de Colunas: [%d]\n", numLinhas, numCols);
 
   Matrix *sparseMatrix = NULL;
 
-  int row, col;
-  float value;
-  while (scanf("%d %d %f", &row, &col, &value) == 3)
+  int linha, col;
+  float valor;
+  while (scanf("%d %d %f", &linha, &col, &valor) == 3)
   {
-    if (value == 0.0)
+    if (valor == 0.0)
     {
       break; // Marcador de fim de matriz
     }
-    addNode(&sparseMatrix, row, col, value);
+
+    if (valor != 0.0)
+    {
+      adicionaNo(&sparseMatrix, linha, col, valor);
+    }
   }
+
+  int c;
+  while ((c = getchar()) != '\n' && c != EOF)
+    ;
 
   return sparseMatrix;
 }
 
-void matrix_destroy(Matrix *m)
+void matrix_destroy(Matrix *a)
 {
-  while (m != NULL)
+  while (a != NULL)
   {
-    Matrix *currentRow = m;
-    while (currentRow->right != NULL)
+    Matrix *linhaAtual = a;
+    while (linhaAtual->right != NULL)
     {
-      Matrix *temp = currentRow;
-      currentRow = currentRow->right;
+      Matrix *temp = linhaAtual;
+      linhaAtual = linhaAtual->right;
       free(temp);
     }
-    Matrix *temp = currentRow;
-    m = m->below;
+    Matrix *temp = linhaAtual;
+    a = a->below;
     free(temp);
   }
 }
 
-void matrix_print(Matrix *m)
+void matrix_print(Matrix *a)
 {
-  Matrix *currentRow = m;
+  Matrix *linhaAtual = a;
 
-  while (currentRow != NULL)
+  while (linhaAtual != NULL)
   {
-    Matrix *currentColumn = currentRow;
-    while (currentColumn != NULL)
+    Matrix *colunaAtual = linhaAtual;
+    while (colunaAtual != NULL)
     {
-      printf("%d %d %.1f\n", currentColumn->line, currentColumn->column, currentColumn->info);
-      currentColumn = currentColumn->right;
+      if (colunaAtual->info != 0.0)
+      {
+        printf("%d  %d  %.1f\n", colunaAtual->line, colunaAtual->column, colunaAtual->info);
+      }
+      colunaAtual = colunaAtual->right;
     }
-    currentRow = currentRow->below;
+    linhaAtual = linhaAtual->below;
   }
 }
 
-Matrix *matrix_add(Matrix *m, Matrix *n)
+Matrix *matrix_add(Matrix *a, Matrix *b)
 {
-  if (m == NULL || n == NULL)
+  if (a == NULL || b == NULL)
   {
     return NULL; // Verificação de entradas inválidas
   }
 
-  Matrix *result = NULL;
-  Matrix *currentM = m;
-  Matrix *currentN = n;
+  Matrix *resultado = NULL;
+  Matrix *matrixA = a;
+  Matrix *matrixB = b;
 
-  while (currentM != NULL && currentN != NULL)
+  while (matrixA != NULL && matrixB != NULL)
   {
-    if (currentM->line == currentN->line && currentM->column == currentN->column)
+    if (matrixA->line == matrixB->line && matrixA->column == matrixB->column)
     {
-      float sum = currentM->info + currentN->info;
+      float sum = matrixA->info + matrixB->info;
       if (sum != 0.0)
       {
-        addNode(&result, currentM->line, currentM->column, sum);
+        adicionaNo(&resultado, matrixA->line, matrixA->column, sum);
       }
-      currentM = currentM->right;
-      currentN = currentN->right;
+      matrixA = matrixA->right;
+      matrixB = matrixB->right;
     }
-    else if (currentM->line < currentN->line || (currentM->line == currentN->line && currentM->column < currentN->column))
+    else if (matrixA->line < matrixB->line || (matrixA->line == matrixB->line && matrixA->column < matrixB->column))
     {
-      addNode(&result, currentM->line, currentM->column, currentM->info);
-      currentM = currentM->right;
+      adicionaNo(&resultado, matrixA->line, matrixA->column, matrixA->info);
+      matrixA = matrixA->right;
     }
     else
     {
-      addNode(&result, currentN->line, currentN->column, currentN->info);
-      currentN = currentN->right;
+      adicionaNo(&resultado, matrixB->line, matrixB->column, matrixB->info);
+      matrixB = matrixB->right;
     }
   }
 
-  while (currentM != NULL)
+  while (matrixA != NULL)
   {
-    addNode(&result, currentM->line, currentM->column, currentM->info);
-    currentM = currentM->right;
+    adicionaNo(&resultado, matrixA->line, matrixA->column, matrixA->info);
+    matrixA = matrixA->right;
   }
 
-  while (currentN != NULL)
+  while (matrixB != NULL)
   {
-    addNode(&result, currentN->line, currentN->column, currentN->info);
-    currentN = currentN->right;
+    adicionaNo(&resultado, matrixB->line, matrixB->column, matrixB->info);
+    matrixB = matrixB->right;
   }
 
-  return result;
+  return resultado;
 }
 
-Matrix *matrix_multiply(Matrix *m, Matrix *n)
+Matrix *matrix_multiply(Matrix *a, Matrix *b)
 {
-  if (m == NULL || n == NULL)
+  if (a == NULL || b == NULL)
   {
     return NULL; // Verificação de entradas inválidas
   }
 
-  Matrix *result = NULL;
-  Matrix *currentM = m;
+  Matrix *resultado = NULL;
+  Matrix *matrixA = a;
 
-  while (currentM != NULL)
+  while (matrixA != NULL)
   {
-    Matrix *currentN = n;
-    while (currentN != NULL)
+    Matrix *matrixB = b;
+    while (matrixB != NULL)
     {
-      if (currentM->column == currentN->line)
+      if (matrixA->column == matrixB->line)
       {
-        float product = currentM->info * currentN->info;
-        addNode(&result, currentM->line, currentN->column, product);
+        float product = matrixA->info * matrixB->info;
+        adicionaNo(&resultado, matrixA->line, matrixB->column, product);
       }
-      currentN = currentN->below;
+      matrixB = matrixB->below;
     }
-    currentM = currentM->below;
+    matrixA = matrixA->below;
   }
 
-  return result;
+  return resultado;
 }
 
-Matrix *matrix_transpose(Matrix *m)
+Matrix *matrix_transpose(Matrix *a)
 {
-  if (m == NULL)
+  if (a == NULL)
   {
     return NULL; // Verificação de entrada inválida
   }
 
-  Matrix *result = NULL;
-  Matrix *current = m;
+  Matrix *resultado = NULL;
+  Matrix *matrixAtual = a;
 
-  while (current != NULL)
+  while (matrixAtual != NULL)
   {
-    addNode(&result, current->column, current->line, current->info);
-    current = current->right;
+    adicionaNo(&resultado, matrixAtual->column, matrixAtual->line, matrixAtual->info);
+    matrixAtual = matrixAtual->right;
   }
 
-  return result;
+  return resultado;
 }
 
-float matrix_getelem(Matrix *m, int x, int y)
+float matrix_getelem(Matrix *a, int x, int y)
 {
-  if (m == NULL)
+  if (a == NULL)
   {
     return 0.0; // Retorna 0 se a matriz for nula
   }
 
-  Matrix *current = m;
-  while (current != NULL)
+  Matrix *matrixAtual = a;
+  while (matrixAtual != NULL)
   {
-    if (current->line == x && current->column == y)
+    if (matrixAtual->line == x && matrixAtual->column == y)
     {
-      return current->info; // Retorna o valor do elemento encontrado
+      return matrixAtual->info; // Retorna o valor do elemento encontrado
     }
-    current = current->right;
+    matrixAtual = matrixAtual->right;
   }
 
   return 0.0; // Retorna 0 se o elemento não for encontrado
 }
 
-void matrix_setelem(Matrix *m, int x, int y, float elem)
+void matrix_setelem(Matrix *a, int x, int y, float elem)
 {
-  if (m == NULL)
+  if (a == NULL)
   {
     return; // Retorna se a matriz for nula
   }
 
-  Matrix *current = m;
-  while (current != NULL)
+  Matrix *matrixAtual = a;
+  while (matrixAtual != NULL)
   {
-    if (current->line == x && current->column == y)
+    if (matrixAtual->line == x && matrixAtual->column == y)
     {
-      current->info = elem; // Atualiza o valor do elemento encontrado
+      matrixAtual->info = elem; // Atualiza o valor do elemento encontrado
       return;
     }
-    current = current->right;
+    matrixAtual = matrixAtual->right;
   }
 
   // Se o elemento não foi encontrado, adicione-o com o valor elem
   if (elem != 0.0)
   {
-    addNode(&m, x, y, elem);
+    adicionaNo(&a, x, y, elem);
   }
 }
