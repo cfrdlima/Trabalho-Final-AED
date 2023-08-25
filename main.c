@@ -5,6 +5,7 @@
 
 // compila arquivo: gcc main.c matrix.o -o main
 // executa programa: ./main
+// carrega matriz: Get-Content entradaMatrixA.txt, entradaMatrixB.txt | .\main.exe
 
 int main()
 {
@@ -12,7 +13,6 @@ int main()
   Matrix *matrixB = NULL;
 
   printf("Informe a matriz A:\n");
-  printf("teste feito");
   matrixA = matrix_create();
 
   printf("Matriz A:\n");

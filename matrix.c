@@ -23,40 +23,54 @@ Matrix *criaNo(int linha, int col, float valor)
   return novoNo;
 }
 
-void adicionaNo(Matrix **head, int linha, int col, float valor)
+void matrix_setelem(Matrix *m, int linha, int col, float valor)
 {
+  // Crie um novo nó com os valores fornecidos
   Matrix *novoNo = criaNo(linha, col, valor);
 
-  if (*head == NULL)
+  if (m == NULL)
   {
-    *head = novoNo;
+    // A matriz está vazia, o novo nó se torna a matriz
+    m = novoNo;
+    return;
   }
-  else
+
+  // Encontre a linha correta para inserir o novo nó
+  Matrix *linhaAtual = m;
+  while (linhaAtual->line < linha)
   {
-    Matrix *linhaAtual = *head;
-    while (linhaAtual->below != NULL && linhaAtual->below->line <= linha)
+    if (linhaAtual->below == NULL)
     {
-      linhaAtual = linhaAtual->below;
+      linhaAtual->below = novoNo; // Insira o novo nó como o último da linha
+      break;
     }
-
-    Matrix *colunaAtual = linhaAtual;
-    while (colunaAtual->right != NULL && colunaAtual->right->column <= col)
-    {
-      colunaAtual = colunaAtual->right;
-    }
-
-    novoNo->below = colunaAtual->below;
-    colunaAtual->below = novoNo;
-
-    novoNo->right = linhaAtual->right;
-    linhaAtual->right = novoNo;
+    linhaAtual = linhaAtual->below;
   }
+
+  // Encontre a posição correta na coluna para inserir o novo nó
+  Matrix *colunaAtual = linhaAtual;
+  while (colunaAtual->column < col)
+  {
+    if (colunaAtual->right == NULL)
+    {
+      colunaAtual->right = novoNo; // Insira o novo nó como o último na coluna
+      break;
+    }
+    colunaAtual = colunaAtual->right;
+  }
+
+  // Insira o novo nó na posição correta
+  novoNo->below = linhaAtual->below;
+  linhaAtual->below = novoNo;
+
+  novoNo->right = colunaAtual->right;
+  colunaAtual->right = novoNo;
 }
 
 Matrix *matrix_create()
 {
   int numLinhas, numCols;
-  printf("Digite o tamanho da Matrix: ");
+  printf("Digite o tamanho da Matrix:\n");
   scanf("%d %d", &numLinhas, &numCols);
   printf("Numero de Linhas: [%d]\nNumero de Colunas: [%d]\n", numLinhas, numCols);
 
@@ -71,15 +85,11 @@ Matrix *matrix_create()
       break; // Marcador de fim de matriz
     }
 
-    if (valor != 0.0)
+    if (linha <= numLinhas && col <= numCols)
     {
-      adicionaNo(&sparseMatrix, linha, col, valor);
+      matrix_setelem(sparseMatrix, linha, col, valor);
     }
   }
-
-  int c;
-  while ((c = getchar()) != '\n' && c != EOF)
-    ;
 
   return sparseMatrix;
 }
@@ -112,7 +122,7 @@ void matrix_print(Matrix *a)
     {
       if (colunaAtual->info != 0.0)
       {
-        printf("%d  %d  %.1f\n", colunaAtual->line, colunaAtual->column, colunaAtual->info);
+        printf("%d %d %.1f\n", colunaAtual->line, colunaAtual->column, colunaAtual->info);
       }
       colunaAtual = colunaAtual->right;
     }
@@ -138,32 +148,32 @@ Matrix *matrix_add(Matrix *a, Matrix *b)
       float sum = matrixA->info + matrixB->info;
       if (sum != 0.0)
       {
-        adicionaNo(&resultado, matrixA->line, matrixA->column, sum);
+        matrix_setelem(resultado, matrixA->line, matrixA->column, sum);
       }
       matrixA = matrixA->right;
       matrixB = matrixB->right;
     }
     else if (matrixA->line < matrixB->line || (matrixA->line == matrixB->line && matrixA->column < matrixB->column))
     {
-      adicionaNo(&resultado, matrixA->line, matrixA->column, matrixA->info);
+      matrix_setelem(resultado, matrixA->line, matrixA->column, matrixA->info);
       matrixA = matrixA->right;
     }
     else
     {
-      adicionaNo(&resultado, matrixB->line, matrixB->column, matrixB->info);
+      matrix_setelem(resultado, matrixB->line, matrixB->column, matrixB->info);
       matrixB = matrixB->right;
     }
   }
 
   while (matrixA != NULL)
   {
-    adicionaNo(&resultado, matrixA->line, matrixA->column, matrixA->info);
+    matrix_setelem(resultado, matrixA->line, matrixA->column, matrixA->info);
     matrixA = matrixA->right;
   }
 
   while (matrixB != NULL)
   {
-    adicionaNo(&resultado, matrixB->line, matrixB->column, matrixB->info);
+    matrix_setelem(resultado, matrixB->line, matrixB->column, matrixB->info);
     matrixB = matrixB->right;
   }
 
@@ -188,7 +198,7 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b)
       if (matrixA->column == matrixB->line)
       {
         float product = matrixA->info * matrixB->info;
-        adicionaNo(&resultado, matrixA->line, matrixB->column, product);
+        matrix_setelem(resultado, matrixA->line, matrixB->column, product);
       }
       matrixB = matrixB->below;
     }
@@ -210,7 +220,7 @@ Matrix *matrix_transpose(Matrix *a)
 
   while (matrixAtual != NULL)
   {
-    adicionaNo(&resultado, matrixAtual->column, matrixAtual->line, matrixAtual->info);
+    matrix_setelem(resultado, matrixAtual->column, matrixAtual->line, matrixAtual->info);
     matrixAtual = matrixAtual->right;
   }
 
@@ -235,29 +245,4 @@ float matrix_getelem(Matrix *a, int x, int y)
   }
 
   return 0.0; // Retorna 0 se o elemento não for encontrado
-}
-
-void matrix_setelem(Matrix *a, int x, int y, float elem)
-{
-  if (a == NULL)
-  {
-    return; // Retorna se a matriz for nula
-  }
-
-  Matrix *matrixAtual = a;
-  while (matrixAtual != NULL)
-  {
-    if (matrixAtual->line == x && matrixAtual->column == y)
-    {
-      matrixAtual->info = elem; // Atualiza o valor do elemento encontrado
-      return;
-    }
-    matrixAtual = matrixAtual->right;
-  }
-
-  // Se o elemento não foi encontrado, adicione-o com o valor elem
-  if (elem != 0.0)
-  {
-    adicionaNo(&a, x, y, elem);
-  }
 }
