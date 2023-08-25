@@ -5,7 +5,7 @@
 
 // compila arquivo: gcc main.c matrix.o -o main
 // executa programa: ./main
-// carrega matriz: Get-Content entradaMatrixA.txt, entradaMatrixB.txt | .\main.exe
+// carrega matriz: Get-Content entradaMatrixA.txt | .\main.exe
 
 int main()
 {
