@@ -70,7 +70,6 @@ Matrix *matrix_create()
     {
       break; // Marcador de fim de matriz
     }
-
     if (linha <= numLinhas && col <= numCols)
     {
       // Verifica se o elemento já existe na matriz
@@ -88,13 +87,11 @@ Matrix *matrix_create()
     {
       printf("Posição (%d, %d) fora dos limites da matriz %dx%d\n", linha, col, numLinhas, numCols);
     }
-
-    // Limpa o buffer do teclado
+    // Limpa o buffer do teclado após cada entrada
     int c;
     while ((c = getchar()) != '\n' && c != EOF)
       ;
   }
-
   return sparseMatrix;
 }
 
