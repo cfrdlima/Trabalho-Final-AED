@@ -5,8 +5,6 @@ typedef struct matrix Matrix;
 
 // create node
 Matrix *createNode(int row, int col, float value);
-// add node
-void addNode(Matrix **head, int row, int col, float value);
 // create Matrix
 Matrix *matrix_create(void);
 // destroy Matrix

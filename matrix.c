@@ -116,54 +116,58 @@ void matrix_print(Matrix *a)
   }
 }
 
-Matrix *matrix_add(Matrix *a, Matrix *b)
+Matrix *matrix_add(Matrix *m, Matrix *n)
 {
-  if (a == NULL || b == NULL)
+  if (m == NULL || n == NULL)
   {
     return NULL; // Verificação de entradas inválidas
   }
 
-  Matrix *resultado = NULL;
-  Matrix *matrixA = a;
-  Matrix *matrixB = b;
+  Matrix *result = NULL;
+  Matrix *matrixM = m;
+  Matrix *matrixN = n;
 
-  while (matrixA != NULL && matrixB != NULL)
+  while (matrixM != NULL && matrixN != NULL)
   {
-    if (matrixA->line == matrixB->line && matrixA->column == matrixB->column)
+    if (matrixM->line == matrixN->line && matrixM->column == matrixN->column)
     {
-      float sum = matrixA->info + matrixB->info;
+      float sum = matrix_getelem(matrixM, matrixM->line, matrixM->column) +
+                  matrix_getelem(matrixN, matrixN->line, matrixN->column);
+
       if (sum != 0.0)
       {
-        matrix_setelem(resultado, matrixA->line, matrixA->column, sum);
+        matrix_setelem(&result, matrixM->line, matrixM->column, sum);
       }
-      matrixA = matrixA->right;
-      matrixB = matrixB->right;
+
+      matrixM = matrixM->right;
+      matrixN = matrixN->right;
     }
-    else if (matrixA->line < matrixB->line || (matrixA->line == matrixB->line && matrixA->column < matrixB->column))
+    else if (matrixM->line < matrixN->line ||
+             (matrixM->line == matrixN->line && matrixM->column < matrixN->column))
     {
-      matrix_setelem(resultado, matrixA->line, matrixA->column, matrixA->info);
-      matrixA = matrixA->right;
+      matrix_setelem(&result, matrixM->line, matrixM->column, matrix_getelem(matrixM, matrixM->line, matrixM->column));
+      matrixM = matrixM->right;
     }
     else
     {
-      matrix_setelem(resultado, matrixB->line, matrixB->column, matrixB->info);
-      matrixB = matrixB->right;
+      matrix_setelem(&result, matrixN->line, matrixN->column, matrix_getelem(matrixN, matrixN->line, matrixN->column));
+      matrixN = matrixN->right;
     }
   }
 
-  while (matrixA != NULL)
+  while (matrixM != NULL)
   {
-    matrix_setelem(resultado, matrixA->line, matrixA->column, matrixA->info);
-    matrixA = matrixA->right;
+    matrix_setelem(&result, matrixM->line, matrixM->column, matrix_getelem(matrixM, matrixM->line, matrixM->column));
+    matrixM = matrixM->right;
   }
 
-  while (matrixB != NULL)
+  while (matrixN != NULL)
   {
-    matrix_setelem(resultado, matrixB->line, matrixB->column, matrixB->info);
-    matrixB = matrixB->right;
+    matrix_setelem(&result, matrixN->line, matrixN->column, matrix_getelem(matrixN, matrixN->line, matrixN->column));
+    matrixN = matrixN->right;
   }
 
-  return resultado;
+  return result;
 }
 
 Matrix *matrix_multiply(Matrix *a, Matrix *b)
@@ -181,7 +185,7 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b)
   {
     if (matrixA->line == matrixB->line && matrixA->column == matrixB->column)
     {
-      float product = matrixA->info * matrixB->info;
+      float product = matrix_getelem(a, matrixA->line, matrixA->column) * matrix_getelem(b, matrixB->line, matrixB->column);
       if (product != 0.0)
       {
         matrix_setelem(resultado, matrixA->line, matrixA->column, product);
@@ -191,26 +195,45 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b)
     }
     else if (matrixA->line < matrixB->line || (matrixA->line == matrixB->line && matrixA->column < matrixB->column))
     {
-      matrix_setelem(resultado, matrixA->line, matrixA->column, matrixA->info);
+      matrix_setelem(resultado, matrixA->line, matrixA->column, matrix_getelem(a, matrixA->line, matrixA->column));
       matrixA = matrixA->right;
     }
     else
     {
-      matrix_setelem(resultado, matrixB->line, matrixB->column, matrixB->info);
+      matrix_setelem(resultado, matrixB->line, matrixB->column, matrix_getelem(b, matrixB->line, matrixB->column));
       matrixB = matrixB->right;
     }
   }
 
   while (matrixA != NULL)
   {
-    matrix_setelem(resultado, matrixA->line, matrixA->column, matrixA->info);
+    matrix_setelem(resultado, matrixA->line, matrixA->column, matrix_getelem(a, matrixA->line, matrixA->column));
     matrixA = matrixA->right;
   }
 
   while (matrixB != NULL)
   {
-    matrix_setelem(resultado, matrixB->line, matrixB->column, matrixB->info);
+    matrix_setelem(resultado, matrixB->line, matrixB->column, matrix_getelem(b, matrixB->line, matrixB->column));
     matrixB = matrixB->right;
+  }
+
+  return resultado;
+}
+
+Matrix *matrix_transpose(Matrix *a)
+{
+  if (a == NULL)
+  {
+    return NULL; // Verificação de entrada inválida
+  }
+
+  Matrix *resultado = NULL;
+  Matrix *matrixAtual = a;
+
+  while (matrixAtual != NULL)
+  {
+    matrix_setelem(resultado, matrixAtual->column, matrixAtual->line, matrixAtual->info);
+    matrixAtual = matrixAtual->right;
   }
 
   return resultado;
@@ -237,20 +260,34 @@ Matrix *matrix_transpose(Matrix *a)
 
 float matrix_getelem(Matrix *a, int x, int y)
 {
-  if (a == NULL)
+  Matrix *linhaAtual = a;
+
+  // Percorra até a linha correta
+  while (linhaAtual != NULL && linhaAtual->line < x)
   {
-    return 0.0; // Retorna 0 se a matriz for nula
+    linhaAtual = linhaAtual->below;
   }
 
-  Matrix *matrixAtual = a;
-  while (matrixAtual != NULL)
+  // Se a linha não existe, retorne 0.0
+  if (linhaAtual == NULL || linhaAtual->line != x)
   {
-    if (matrixAtual->line == x && matrixAtual->column == y)
-    {
-      return matrixAtual->info; // Retorna o valor do elemento encontrado
-    }
-    matrixAtual = matrixAtual->right;
+    return 0.0;
   }
 
-  return 0.0; // Retorna 0 se o elemento não for encontrado
+  Matrix *colunaAtual = linhaAtual;
+
+  // Percorra até a coluna correta
+  while (colunaAtual != NULL && colunaAtual->column < y)
+  {
+    colunaAtual = colunaAtual->right;
+  }
+
+  // Se a coluna não existe, retorne 0.0
+  if (colunaAtual == NULL || colunaAtual->column != y)
+  {
+    return 0.0;
+  }
+
+  // Retorna o valor do elemento encontrado
+  return colunaAtual->info;
 }
