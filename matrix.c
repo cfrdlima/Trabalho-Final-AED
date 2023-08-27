@@ -56,7 +56,7 @@ void matrix_setelem(Matrix *head, int linha, int col, float valor)
 Matrix *matrix_create()
 {
   int numLinhas, numCols;
-  printf("Digite o tamanho da Matrix: \n");
+  printf("Digite o tamanho da Matrix:\n");
   scanf("%d %d", &numLinhas, &numCols);
   printf("Numero de Linhas: [%d]\nNumero de Colunas: [%d]\n", numLinhas, numCols);
 
@@ -71,10 +71,28 @@ Matrix *matrix_create()
       break; // Marcador de fim de matriz
     }
 
-    if (valor != 0.0)
+    if (linha <= numLinhas && col <= numCols)
     {
-      matrix_setelem(sparseMatrix, linha, col, valor);
+      // Verifica se o elemento já existe na matriz
+      float existingValue = matrix_getelem(sparseMatrix, linha, col);
+      if (existingValue == 0.0)
+      {
+        matrix_setelem(&sparseMatrix, linha, col, valor);
+      }
+      else
+      {
+        printf("Elemento (%d, %d) já existe com valor %.1f\n", linha, col, existingValue);
+      }
     }
+    else
+    {
+      printf("Posição (%d, %d) fora dos limites da matriz %dx%d\n", linha, col, numLinhas, numCols);
+    }
+
+    // Limpa o buffer do teclado
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+      ;
   }
 
   return sparseMatrix;
@@ -113,6 +131,9 @@ void matrix_print(Matrix *a)
       colunaAtual = colunaAtual->right;
     }
     linhaAtual = linhaAtual->below;
+
+    // Pula uma linha após imprimir os elementos de uma linha
+    printf("\n");
   }
 }
 
