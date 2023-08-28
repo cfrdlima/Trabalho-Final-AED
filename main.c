@@ -36,7 +36,6 @@ int main()
   printf("Transposta da matriz A:\n");
   matrix_print(transposeMatrixA);
 
-  // Liberação da memória alocada para as matrizes
   matrix_destroy(matrixA);
   matrix_destroy(matrixB);
   matrix_destroy(sumMatrix);

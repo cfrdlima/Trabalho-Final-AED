@@ -87,10 +87,6 @@ Matrix *matrix_create()
     {
       printf("Posição (%d, %d) fora dos limites da matriz %dx%d\n", linha, col, numLinhas, numCols);
     }
-    // Limpa o buffer do teclado após cada entrada
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF)
-      ;
   }
   return sparseMatrix;
 }
@@ -129,7 +125,6 @@ void matrix_print(Matrix *a)
     }
     linhaAtual = linhaAtual->below;
 
-    // Pula uma linha após imprimir os elementos de uma linha
     printf("\n");
   }
 }
@@ -257,36 +252,15 @@ Matrix *matrix_transpose(Matrix *a)
   return resultado;
 }
 
-Matrix *matrix_transpose(Matrix *a)
-{
-  if (a == NULL)
-  {
-    return NULL; // Verificação de entrada inválida
-  }
-
-  Matrix *resultado = NULL;
-  Matrix *matrixAtual = a;
-
-  while (matrixAtual != NULL)
-  {
-    matrix_setelem(resultado, matrixAtual->column, matrixAtual->line, matrixAtual->info);
-    matrixAtual = matrixAtual->right;
-  }
-
-  return resultado;
-}
-
 float matrix_getelem(Matrix *a, int x, int y)
 {
   Matrix *linhaAtual = a;
 
-  // Percorra até a linha correta
   while (linhaAtual != NULL && linhaAtual->line < x)
   {
     linhaAtual = linhaAtual->below;
   }
 
-  // Se a linha não existe, retorne 0.0
   if (linhaAtual == NULL || linhaAtual->line != x)
   {
     return 0.0;
@@ -294,18 +268,15 @@ float matrix_getelem(Matrix *a, int x, int y)
 
   Matrix *colunaAtual = linhaAtual;
 
-  // Percorra até a coluna correta
   while (colunaAtual != NULL && colunaAtual->column < y)
   {
     colunaAtual = colunaAtual->right;
   }
 
-  // Se a coluna não existe, retorne 0.0
   if (colunaAtual == NULL || colunaAtual->column != y)
   {
     return 0.0;
   }
 
-  // Retorna o valor do elemento encontrado
   return colunaAtual->info;
 }
